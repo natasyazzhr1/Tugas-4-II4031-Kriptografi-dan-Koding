@@ -1,3 +1,4 @@
+from email import message
 from random import randrange, getrandbits
 from math import gcd
 import hashlib
@@ -77,7 +78,7 @@ def digest(text):
     return res.hexdigest()
 
 
-def sign(file_name, message_digest):
+def set_sign(file_name, message_digest):
     with open(file_name, "a+") as file_object:
         file_object.seek(0)
         text = file_object.read(100)
@@ -99,6 +100,11 @@ def to_hex(list):
         result.append((hex(number)).replace('0x', ''))
     return ''.join(result)
 
+def to_string(list):
+    result = []
+    for number in list:
+        result.append(chr(number + ord('a')))
+    return ''.join(result)
 
 def encrypt(plaintext, key, n):
     plaintext_ascii = to_ascii(plaintext)
@@ -110,7 +116,24 @@ def encrypt(plaintext, key, n):
     ciphertext = to_hex(result)
     return(ciphertext)
 
+def decrypt(ciphertext, key, n):
+    ciphertext_ascii = to_ascii(ciphertext)
 
+    result = []
+    for number in ciphertext_ascii:
+        result.append((number ** int(key)) % n)
+    
+    plaintext = to_string(result)
+    return(plaintext)
+
+def get_sign(file_name):
+    with open(file_name,'r') as f:
+        message_digest = f.readlines()[-1]
+        message_digest = message_digest.replace("<ds>", "")
+        message_digest = message_digest.replace("</ds>", "")
+    return message_digest
+
+file_name = "document.txt"
 n = initialize()
 
 pub = file_read("public.pub")
@@ -119,7 +142,14 @@ print(pub)
 pri = file_read("private.pri")
 print(pri)
 
-doc = file_read("document.txt")
-message_digest = digest(doc)
-encrypted_message_digest = encrypt(message_digest, pri, n)
-sign("document.txt", encrypted_message_digest)
+doc = file_read(file_name)
+hashed_sent_md = digest(doc)
+# print(hashed_sent_md)
+encrypted_message_digest = encrypt(hashed_sent_md, pri, n)
+print(encrypted_message_digest)
+set_sign(file_name, encrypted_message_digest)
+
+message_digest = get_sign(file_name)
+decrypted_message_digest = decrypt(message_digest, pub, n)
+hashed_received_md = digest(decrypted_message_digest)
+print(hashed_received_md)
