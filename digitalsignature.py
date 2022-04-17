@@ -1,4 +1,3 @@
-from email import message
 from random import randrange, getrandbits
 from math import gcd
 import hashlib
@@ -40,9 +39,15 @@ def privatekey_generator(e, phi):
         return (x - (phi // e) * y, y)
 
 
+def file_read_lines(file_name):
+    with open(file_name, 'r') as f:
+        text = f.readlines()
+    return str(text)
+
+
 def file_read(file_name):
-    res = open(file_name)
-    return (res.read())
+    doc = open(file_name)
+    return doc.read()
 
 
 def initialize():
@@ -57,10 +62,10 @@ def initialize():
     if(d < 0):
         d += phi
 
-    print("p =", p)
-    print("q =", q)
-    print("n =", n)
-    print("phi =", phi)
+    # print("p =", p)
+    # print("q =", q)
+    # print("n =", n)
+    # print("phi =", phi)
 
     txtprivate = open('private.pri', 'w')
     txtprivate.write(str(d))
@@ -79,12 +84,9 @@ def digest(text):
 
 
 def set_sign(file_name, message_digest):
-    with open(file_name, "a+") as file_object:
-        file_object.seek(0)
-        text = file_object.read(100)
-        if len(text) > 0:
-            file_object.write("\n")
-        file_object.write("<ds>" + message_digest + "</ds>")
+    with open(file_name, "a") as f:
+        f.write("\n" + "<ds>" + message_digest + "</ds>")
+    return f
 
 
 def to_ascii(list):
@@ -100,11 +102,13 @@ def to_hex(list):
         result.append((hex(number)).replace('0x', ''))
     return ''.join(result)
 
+
 def to_string(list):
     result = []
     for number in list:
         result.append(chr(number + ord('a')))
     return ''.join(result)
+
 
 def encrypt(plaintext, key, n):
     plaintext_ascii = to_ascii(plaintext)
@@ -116,40 +120,66 @@ def encrypt(plaintext, key, n):
     ciphertext = to_hex(result)
     return(ciphertext)
 
+
 def decrypt(ciphertext, key, n):
     ciphertext_ascii = to_ascii(ciphertext)
 
     result = []
     for number in ciphertext_ascii:
         result.append((number ** int(key)) % n)
-    
+
     plaintext = to_string(result)
     return(plaintext)
 
+
 def get_sign(file_name):
-    with open(file_name,'r') as f:
+    with open(file_name, 'r') as f:
         message_digest = f.readlines()[-1]
         message_digest = message_digest.replace("<ds>", "")
         message_digest = message_digest.replace("</ds>", "")
     return message_digest
 
+
+def get_message(file_name):
+    ori_file_name = "message.txt"
+    with open(file_name, 'r') as f, open(ori_file_name, 'w') as f2:
+        fcontent = f.readlines()
+        fcontent = fcontent[:len(fcontent)-1]
+        lastcontent = fcontent[len(fcontent)-1]  # ini string terakhir
+        lastcontent = lastcontent[:len(lastcontent)-1]  # hapus new line
+        fcontent[len(fcontent)-1] = lastcontent  # assign balik ke last element
+        f2.writelines(fcontent)
+
+
 file_name = "document.txt"
 n = initialize()
 
 pub = file_read("public.pub")
-print(pub)
+print('public key', pub)
 
 pri = file_read("private.pri")
-print(pri)
+print('private key', pri)
 
-doc = file_read(file_name)
+doc = file_read_lines(file_name)
+print('awal', doc, "\n")
 hashed_sent_md = digest(doc)
-# print(hashed_sent_md)
+print('fungsi hash', hashed_sent_md)
+
 encrypted_message_digest = encrypt(hashed_sent_md, pri, n)
-print(encrypted_message_digest)
+print('fungsi encrypt', encrypted_message_digest)
+
 set_sign(file_name, encrypted_message_digest)
 
 message_digest = get_sign(file_name)
+# print('sign', message_digest)
+
 decrypted_message_digest = decrypt(message_digest, pub, n)
-hashed_received_md = digest(decrypted_message_digest)
-print(hashed_received_md)
+print('fungsi decrypt', decrypted_message_digest)
+
+get_message(file_name)
+
+message = file_read_lines("message.txt")
+print('akhir', message)
+
+hashed_received_md = digest(message)
+print('fungsi hash', hashed_received_md)
