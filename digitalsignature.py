@@ -141,14 +141,19 @@ def get_sign(file_name):
 
 
 def get_message(file_name):
-    ori_file_name = "message.txt"
-    with open(file_name, 'r') as f, open(ori_file_name, 'w') as f2:
+    message_file_name = "message.txt"
+    sign_file_name = "signature.txt"
+    with open(file_name, 'r') as f, open(message_file_name, 'w') as f2, open(sign_file_name, 'w') as f3:
         fcontent = f.readlines()
         fcontent = fcontent[:len(fcontent)-1]
         lastcontent = fcontent[len(fcontent)-1]  # ini string terakhir
         lastcontent = lastcontent[:len(lastcontent)-1]  # hapus new line
         fcontent[len(fcontent)-1] = lastcontent  # assign balik ke last element
         f2.writelines(fcontent)
+
+
+def verify(message_digest1, message_digest2):
+    return message_digest1 == message_digest2
 
 
 file_name = "document.txt"
@@ -160,8 +165,9 @@ print('public key', pub)
 pri = file_read("private.pri")
 print('private key', pri)
 
-doc = file_read_lines(file_name)
-print('awal', doc, "\n")
+doc = file_read(file_name)
+# print('awal', doc,)
+
 hashed_sent_md = digest(doc)
 print('fungsi hash', hashed_sent_md)
 
@@ -178,8 +184,11 @@ print('fungsi decrypt', decrypted_message_digest)
 
 get_message(file_name)
 
-message = file_read_lines("message.txt")
-print('akhir', message)
+message = file_read("message.txt")
+# print('akhir', message)
 
 hashed_received_md = digest(message)
 print('fungsi hash', hashed_received_md)
+
+authenticity = verify(decrypted_message_digest, hashed_received_md)
+print(authenticity)
