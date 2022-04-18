@@ -50,9 +50,9 @@ def file_read(file_name):
     return doc.read()
 
 
-def initialize():
-    p = prime_generator()
-    q = prime_generator()
+def initialize(p, q):
+    # p = prime_generator()
+    # q = prime_generator()
     n = p * q
     phi = (p-1) * (q-1)
     e = publickey_generator(phi)
@@ -97,17 +97,11 @@ def to_ascii(list):
 
 
 def to_dec(list):
-    # result = []
-    # for number in list:
-    #     result.append(int(number,16))
     result = int(list, 16)
     return result
 
 
 def to_hex(list):
-    # result = []
-    # for number in list:
-    #     result.append((hex(number)).replace('0x', ''))
     result = hex(list).replace('0x', '')
     return result
 
@@ -120,41 +114,23 @@ def to_string(list):
 
 
 def encrypt(plaintext, key, n):
-    # plaintext_ascii = to_ascii(plaintext)
-    # print(plaintext_ascii)
-
-    # result = []
-    # for number in plaintext_ascii:
-    #     result.append((number ** int(key)) % n)
     result = plaintext ** int(key) % n
-    # print('result',result)
-
-    # ciphertext = []
-    # ciphertext = to_hex(result)
-
     return(result)
 
 
 def decrypt(ciphertext, key, n):
-    # ciphertext_dec = to_dec(ciphertext) #diubah ke decimal
-    # print('result',ciphertext_dec)
-
-    # result = []
-    # for number in ciphertext_dec:
-    #     result.append((number ** int(key)) % n)
-    # print(result)
     result = ciphertext ** int(key) % n
-    # print('result', result)
-
-    # plaintext = to_string(result)
     return(result)
 
 
 def get_sign(file_name):
     with open(file_name, 'r') as f:
         message_digest = f.readlines()[-1]
-        message_digest = message_digest.replace("<ds>", "")
-        message_digest = message_digest.replace("</ds>", "")
+        if "<ds>" and "</ds>" in message_digest:
+            message_digest = message_digest.replace("<ds>", "")
+            message_digest = message_digest.replace("</ds>", "")
+        else:
+            message_digest = "0"
     return message_digest
 
 
@@ -164,9 +140,9 @@ def get_message(file_name):
     with open(file_name, 'r') as f, open(message_file_name, 'w') as f2, open(sign_file_name, 'w') as f3:
         fcontent = f.readlines()
         fcontent = fcontent[:len(fcontent)-1]
-        lastcontent = fcontent[len(fcontent)-1]  # ini string terakhir
-        lastcontent = lastcontent[:len(lastcontent)-1]  # hapus new line
-        fcontent[len(fcontent)-1] = lastcontent  # assign balik ke last element
+        lastcontent = fcontent[len(fcontent)-1]
+        lastcontent = lastcontent[:len(lastcontent)-1]
+        fcontent[len(fcontent)-1] = lastcontent
         f2.writelines(fcontent)
 
 
@@ -183,57 +159,23 @@ def authenticate():
         return "there has been some changes"
 
 
-def sign(file_name, pri_name, pub_name, n):
-    pub = file_read(pri_name)
-    print('public key', pub)
-
-    pri = file_read(pub_name)
-    print('private key', pri)
-
+def sign(file_name, pri_name, n):
+    pri = file_read(pri_name)
     doc = file_read(file_name)
-    # print('awal', doc)
-
     hashed_sent_md = digest(doc)
-    print('fungsi hash', hashed_sent_md)
-
     dec_hashed_sent_md = to_dec(hashed_sent_md)
-    # print('decimal', dec_hashed_sent_md)
-
     encrypted_message_digest = encrypt(dec_hashed_sent_md, pri, n)
-    print('fungsi encrypt', encrypted_message_digest)
-
-    # encrypted_message_digest = encrypt(hashed_sent_md, pri, n)
-    # print_encrypted_message_digest = ''.join(encrypted_message_digest)
-    # print('fungsi encrypt', print_encrypted_message_digest)
-
     set_sign(file_name, str(to_hex(encrypted_message_digest)))
 
 
-def verify(file_name, pri_name, pub_name, n):
+def verify(file_name, pub_name, n):
+    pub = file_read(pub_name)
     message_digest = get_sign(file_name)
-    # print('sign', message_digest)
-
     decrypted_message_digest = decrypt(to_dec(message_digest), pub, n)
-    print('fungsi decrypt', decrypted_message_digest)
-
-    # tadi yang kanan
-
-    # decrypted_message_digest = decrypt(encrypted_message_digest, pub, n)
-    # print('fungsi decrypt', decrypted_message_digest)
-
     get_message(file_name)
-
     message = file_read("message.txt")
-    # print('akhir', message)
-
     hashed_received_md = digest(message)
-    # print('digest_message', hashed_received_md)
-
-    # dec_hashed_received_md = hashed_received_md
-    # # print('decimal', dec_hashed_received_md)
-
     result_received_md = to_dec(hashed_received_md) % n
-    print('hasil', result_received_md)
 
     if result_received_md == decrypted_message_digest:
         return "verified"

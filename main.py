@@ -25,9 +25,10 @@ class Menu(QMainWindow):
         self.pushButton_7.clicked.connect(self.Sign)
 
     def Generate(self):
-        # p = int(self.lineEdit.text())
-        # q = int(self.lineEdit_2.text())
-        n = initialize()
+        p = int(self.textEdit.toPlainText())
+        q = int(self.textEdit_2.toPlainText())
+        global n
+        n = initialize(p, q)
 
     def Select_Private_Key(self):
         browser = QFileDialog.getOpenFileName(
@@ -53,10 +54,10 @@ class Menu(QMainWindow):
             self.label_3.setText("Currently viewing: " + file_name)
 
     def Sign(self):
+        global n
         pri_name = self.textBrowser.toPlainText()
-        pub_name = self.textBrowser_2.toPlainText()
         file_name = self.textBrowser_3.toPlainText()
-        sign(file_name, pri_name, pub_name, n)
+        sign(file_name, pri_name, n)
 
     def Select_File_Verify(self):
         browser = QFileDialog.getOpenFileName(
@@ -68,10 +69,10 @@ class Menu(QMainWindow):
             self.label_3.setText("Currently viewing: " + file_name)
 
     def Authenticate(self):
-        pri_name = self.textBrowser.toPlainText()
+        global n
         pub_name = self.textBrowser_2.toPlainText()
         file_name = self.textBrowser_4.toPlainText()
-        status = verify(file_name, pri_name, pub_name, n)
+        status = verify(file_name, pub_name, n)
         self.textBrowser_5.setText(status)
 
 
