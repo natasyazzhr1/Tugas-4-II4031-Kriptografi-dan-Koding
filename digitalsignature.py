@@ -105,9 +105,10 @@ def to_dec(list):
 
 
 def to_hex(list):
-    result = []
-    for number in list:
-        result.append((hex(number)).replace('0x', ''))
+    # result = []
+    # for number in list:
+    #     result.append((hex(number)).replace('0x', ''))
+    result = hex(list).replace('0x', '')
     return result
 
 
@@ -198,12 +199,12 @@ print('fungsi encrypt', encrypted_message_digest)
 # print_encrypted_message_digest = ''.join(encrypted_message_digest)
 # print('fungsi encrypt', print_encrypted_message_digest)
 
-set_sign(file_name, str(encrypted_message_digest))
+set_sign(file_name, str(to_hex(encrypted_message_digest)))
 
 message_digest = get_sign(file_name)
 # print('sign', message_digest)
 
-decrypted_message_digest = decrypt(int(message_digest), pub, n)
+decrypted_message_digest = decrypt(encrypted_message_digest, pub, n)
 print('fungsi decrypt', decrypted_message_digest)
 
 # tadi yang kanan
@@ -216,14 +217,14 @@ get_message(file_name)
 message = file_read("message.txt")
 # print('akhir', message)
 
-hashed_received_md = digest(message)
-# print('fungsi hash', hashed_received_md)
+hashed_received_md = to_dec(digest(message))
+# print('digest_message', hashed_received_md)
 
-dec_hashed_received_md = to_dec(hashed_received_md)
-# print('decimal', dec_hashed_received_md)
+# dec_hashed_received_md = hashed_received_md
+# # print('decimal', dec_hashed_received_md)
 
-result_received_md = dec_hashed_received_md % n
-# print('fungsi encrypt', result_received_md)
+result_received_md = hashed_received_md % n
+print('hasil', result_received_md)
 
 authenticity = verify(decrypted_message_digest, result_received_md)
 print(authenticity)
