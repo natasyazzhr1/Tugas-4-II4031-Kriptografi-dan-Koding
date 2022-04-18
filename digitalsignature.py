@@ -131,7 +131,7 @@ def encrypt(plaintext, key, n):
 
     # ciphertext = []
     # ciphertext = to_hex(result)
-    
+
     return(result)
 
 
@@ -174,57 +174,64 @@ def verify(message_digest1, message_digest2):
     return message_digest1 == message_digest2
 
 
-file_name = "document.txt"
-n = initialize()
+def authenticate():
+    authenticity = verify(decrypted_message_digest, result_received_md)
+    print(authenticity)
+    if authenticity == true:
+        return "verified"
+    else:
+        return "there has been some changes"
 
-pub = file_read("public.pub")
-print('public key', pub)
 
-pri = file_read("private.pri")
-print('private key', pri)
+def sign(file_name, pri_name, pub_name, n):
+    pub = file_read(pri_name)
+    print('public key', pub)
 
-doc = file_read(file_name)
-# print('awal', doc)
+    pri = file_read(pub_name)
+    print('private key', pri)
 
-hashed_sent_md = digest(doc)
-print('fungsi hash', hashed_sent_md)
+    doc = file_read(file_name)
+    # print('awal', doc)
 
-dec_hashed_sent_md = to_dec(hashed_sent_md)
-# print('decimal', dec_hashed_sent_md)
+    hashed_sent_md = digest(doc)
+    print('fungsi hash', hashed_sent_md)
 
-encrypted_message_digest = encrypt(dec_hashed_sent_md, pri, n)
-print('fungsi encrypt', encrypted_message_digest)
+    dec_hashed_sent_md = to_dec(hashed_sent_md)
+    # print('decimal', dec_hashed_sent_md)
 
-# encrypted_message_digest = encrypt(hashed_sent_md, pri, n)
-# print_encrypted_message_digest = ''.join(encrypted_message_digest)
-# print('fungsi encrypt', print_encrypted_message_digest)
+    encrypted_message_digest = encrypt(dec_hashed_sent_md, pri, n)
+    print('fungsi encrypt', encrypted_message_digest)
 
-set_sign(file_name, str(to_hex(encrypted_message_digest)))
+    # encrypted_message_digest = encrypt(hashed_sent_md, pri, n)
+    # print_encrypted_message_digest = ''.join(encrypted_message_digest)
+    # print('fungsi encrypt', print_encrypted_message_digest)
 
-message_digest = get_sign(file_name)
-# print('sign', message_digest)
+    set_sign(file_name, str(to_hex(encrypted_message_digest)))
 
-decrypted_message_digest = decrypt(encrypted_message_digest, pub, n)
-print('fungsi decrypt', decrypted_message_digest)
 
-# tadi yang kanan
+# message_digest = get_sign(file_name)
+# # print('sign', message_digest)
 
 # decrypted_message_digest = decrypt(encrypted_message_digest, pub, n)
 # print('fungsi decrypt', decrypted_message_digest)
 
-get_message(file_name)
+# # tadi yang kanan
 
-message = file_read("message.txt")
-# print('akhir', message)
+# # decrypted_message_digest = decrypt(encrypted_message_digest, pub, n)
+# # print('fungsi decrypt', decrypted_message_digest)
 
-hashed_received_md = to_dec(digest(message))
-# print('digest_message', hashed_received_md)
+# get_message(file_name)
 
-# dec_hashed_received_md = hashed_received_md
-# # print('decimal', dec_hashed_received_md)
+# message = file_read("message.txt")
+# # print('akhir', message)
 
-result_received_md = hashed_received_md % n
-print('hasil', result_received_md)
+# hashed_received_md = to_dec(digest(message))
+# # print('digest_message', hashed_received_md)
 
-authenticity = verify(decrypted_message_digest, result_received_md)
-print(authenticity)
+# # dec_hashed_received_md = hashed_received_md
+# # # print('decimal', dec_hashed_received_md)
+
+# result_received_md = hashed_received_md % n
+# print('hasil', result_received_md)
+
+# authenticate()
