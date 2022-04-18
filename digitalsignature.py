@@ -96,10 +96,10 @@ def to_ascii(list):
     return result
 
 def to_dec(list):
-    result = []
-    for number in list:
-        result.append(int(number,16))
-    # result = int(list, 16)
+    # result = []
+    # for number in list:
+    #     result.append(int(number,16))
+    result = int(list, 16)
     return result
 
 def to_hex(list):
@@ -117,31 +117,34 @@ def to_string(list):
 
 
 def encrypt(plaintext, key, n):
-    plaintext_ascii = to_ascii(plaintext)
+    # plaintext_ascii = to_ascii(plaintext)
     # print(plaintext_ascii)
 
-    result = []
-    for number in plaintext_ascii:
-        result.append((number ** int(key)) % n)
+    # result = []
+    # for number in plaintext_ascii:
+    #     result.append((number ** int(key)) % n)
+    result = plaintext ** int(key) % n
     # print('result',result)
 
-    ciphertext = []
-    ciphertext = to_hex(result)
+    # ciphertext = []
+    # ciphertext = to_hex(result)
     
-    return(ciphertext)
+    return(result)
 
 
 def decrypt(ciphertext, key, n):
-    ciphertext_dec = to_dec(ciphertext) #diubah ke decimal
+    # ciphertext_dec = to_dec(ciphertext) #diubah ke decimal
     # print('result',ciphertext_dec)
 
-    result = []
-    for number in ciphertext_dec:
-        result.append((number ** int(key)) % n)
+    # result = []
+    # for number in ciphertext_dec:
+    #     result.append((number ** int(key)) % n)
     # print(result)
+    result = ciphertext ** int(key) % n
+    # print('result', result)
 
-    plaintext = to_string(result)
-    return(plaintext)
+    # plaintext = to_string(result)
+    return(result)
 
 def get_sign(file_name):
     with open(file_name, 'r') as f:
@@ -177,22 +180,35 @@ pri = file_read("private.pri")
 print('private key', pri)
 
 doc = file_read(file_name)
-# print('awal', doc,)
+# print('awal', doc)
 
 hashed_sent_md = digest(doc)
 print('fungsi hash', hashed_sent_md)
 
-encrypted_message_digest = encrypt(hashed_sent_md, pri, n)
-print_encrypted_message_digest = ''.join(encrypted_message_digest)
-print('fungsi encrypt', print_encrypted_message_digest)
+dec_hashed_sent_md = to_dec(hashed_sent_md)
+# print('decimal', dec_hashed_sent_md)
+# 218991964599382371228554013295471770148
 
-set_sign(file_name, print_encrypted_message_digest)
+encrypted_message_digest = encrypt(dec_hashed_sent_md, pri, n)
+print('fungsi encrypt', encrypted_message_digest)
+# 46489
+
+# encrypted_message_digest = encrypt(hashed_sent_md, pri, n)
+# print_encrypted_message_digest = ''.join(encrypted_message_digest)
+# print('fungsi encrypt', print_encrypted_message_digest)
+
+set_sign(file_name, str(encrypted_message_digest))
 
 message_digest = get_sign(file_name)
 # print('sign', message_digest)
 
-decrypted_message_digest = decrypt(encrypted_message_digest, pub, n)
+decrypted_message_digest = decrypt(int(message_digest), pub, n)
 print('fungsi decrypt', decrypted_message_digest)
+
+# tadi yang kanan
+
+# decrypted_message_digest = decrypt(encrypted_message_digest, pub, n)
+# print('fungsi decrypt', decrypted_message_digest)
 
 get_message(file_name)
 
@@ -200,7 +216,13 @@ message = file_read("message.txt")
 # print('akhir', message)
 
 hashed_received_md = digest(message)
-print('fungsi hash', hashed_received_md)
+# print('fungsi hash', hashed_received_md)
 
-authenticity = verify(decrypted_message_digest, hashed_received_md)
+dec_hashed_received_md = to_dec(hashed_received_md)
+# print('decimal', dec_hashed_received_md)
+
+result_received_md = dec_hashed_received_md % n
+# print('fungsi encrypt', result_received_md)
+
+authenticity = verify(decrypted_message_digest, result_received_md)
 print(authenticity)
