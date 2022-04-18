@@ -5,13 +5,14 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtGui import QPixmap
 
 
-from digitalsignature import initialize, file_read, sign
+from digitalsignature import initialize, file_read, sign, verify
 
 import os
 import time
 
 
 class Menu(QMainWindow):
+
     def __init__(self):
         super(Menu, self).__init__()
         loadUi("home.ui", self)
@@ -19,14 +20,13 @@ class Menu(QMainWindow):
         self.pushButton_2.clicked.connect(self.Select_Public_Key)
         self.pushButton_3.clicked.connect(self.Select_File_Sign)
         self.pushButton_4.clicked.connect(self.Select_File_Verify)
-        # self.pushButton_5.clicked.connect(self.Authenticate)
-        # self.pushButton_6.clicked.connect(self.Generate)
-        # self.pushButton_7.clicked.connect(self.Sign)
+        self.pushButton_5.clicked.connect(self.Authenticate)
+        self.pushButton_6.clicked.connect(self.Generate)
+        self.pushButton_7.clicked.connect(self.Sign)
 
     def Generate(self):
-        p = int(self.lineEdit.text())
-        q = int(self.lineEdit_2.text())
-        global n
+        # p = int(self.lineEdit.text())
+        # q = int(self.lineEdit_2.text())
         n = initialize()
 
     def Select_Private_Key(self):
@@ -53,9 +53,9 @@ class Menu(QMainWindow):
             self.label_3.setText("Currently viewing: " + file_name)
 
     def Sign(self):
-        pri_name = textBrowser.toPlainText()
-        pub_name = textBrowser_2.toPlainText()
-        file_name = textBrowser_3.toPlainText()
+        pri_name = self.textBrowser.toPlainText()
+        pub_name = self.textBrowser_2.toPlainText()
+        file_name = self.textBrowser_3.toPlainText()
         sign(file_name, pri_name, pub_name, n)
 
     def Select_File_Verify(self):
@@ -66,6 +66,13 @@ class Menu(QMainWindow):
             self.textBrowser_4.setText(file_name)
             self.textBrowser_6.setText(file_read(file_name))
             self.label_3.setText("Currently viewing: " + file_name)
+
+    def Authenticate(self):
+        pri_name = self.textBrowser.toPlainText()
+        pub_name = self.textBrowser_2.toPlainText()
+        file_name = self.textBrowser_4.toPlainText()
+        status = verify(file_name, pri_name, pub_name, n)
+        self.textBrowser_5.setText(status)
 
 
 # main

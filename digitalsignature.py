@@ -170,7 +170,7 @@ def get_message(file_name):
         f2.writelines(fcontent)
 
 
-def verify(message_digest1, message_digest2):
+def authenticate(message_digest1, message_digest2):
     return message_digest1 == message_digest2
 
 
@@ -209,29 +209,33 @@ def sign(file_name, pri_name, pub_name, n):
     set_sign(file_name, str(to_hex(encrypted_message_digest)))
 
 
-# message_digest = get_sign(file_name)
-# # print('sign', message_digest)
+def verify(file_name, pri_name, pub_name, n):
+    message_digest = get_sign(file_name)
+    # print('sign', message_digest)
 
-# decrypted_message_digest = decrypt(encrypted_message_digest, pub, n)
-# print('fungsi decrypt', decrypted_message_digest)
+    decrypted_message_digest = decrypt(to_dec(message_digest), pub, n)
+    print('fungsi decrypt', decrypted_message_digest)
 
-# # tadi yang kanan
+    # tadi yang kanan
 
-# # decrypted_message_digest = decrypt(encrypted_message_digest, pub, n)
-# # print('fungsi decrypt', decrypted_message_digest)
+    # decrypted_message_digest = decrypt(encrypted_message_digest, pub, n)
+    # print('fungsi decrypt', decrypted_message_digest)
 
-# get_message(file_name)
+    get_message(file_name)
 
-# message = file_read("message.txt")
-# # print('akhir', message)
+    message = file_read("message.txt")
+    # print('akhir', message)
 
-# hashed_received_md = to_dec(digest(message))
-# # print('digest_message', hashed_received_md)
+    hashed_received_md = digest(message)
+    # print('digest_message', hashed_received_md)
 
-# # dec_hashed_received_md = hashed_received_md
-# # # print('decimal', dec_hashed_received_md)
+    # dec_hashed_received_md = hashed_received_md
+    # # print('decimal', dec_hashed_received_md)
 
-# result_received_md = hashed_received_md % n
-# print('hasil', result_received_md)
+    result_received_md = to_dec(hashed_received_md) % n
+    print('hasil', result_received_md)
 
-# authenticate()
+    if result_received_md == decrypted_message_digest:
+        return "verified"
+    else:
+        return "there has been some changes"
