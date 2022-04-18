@@ -95,12 +95,14 @@ def to_ascii(list):
         result.append(ord(letter))
     return result
 
+
 def to_dec(list):
     result = []
     for number in list:
-        result.append(int(number,16))
+        result.append(int(number, 16))
     # result = int(list, 16)
     return result
+
 
 def to_hex(list):
     result = []
@@ -118,21 +120,21 @@ def to_string(list):
 
 def encrypt(plaintext, key, n):
     plaintext_ascii = to_ascii(plaintext)
-    # print(plaintext_ascii)
+    print('hash ascii', plaintext_ascii)
 
     result = []
     for number in plaintext_ascii:
         result.append((number ** int(key)) % n)
-    # print('result',result)
+    print('result', result)
 
     ciphertext = []
     ciphertext = to_hex(result)
-    
+
     return(ciphertext)
 
 
 def decrypt(ciphertext, key, n):
-    ciphertext_dec = to_dec(ciphertext) #diubah ke decimal
+    ciphertext_dec = to_dec(ciphertext)  # diubah ke decimal
     # print('result',ciphertext_dec)
 
     result = []
@@ -142,6 +144,7 @@ def decrypt(ciphertext, key, n):
 
     plaintext = to_string(result)
     return(plaintext)
+
 
 def get_sign(file_name):
     with open(file_name, 'r') as f:
@@ -183,8 +186,7 @@ hashed_sent_md = digest(doc)
 print('fungsi hash', hashed_sent_md)
 
 encrypted_message_digest = encrypt(hashed_sent_md, pri, n)
-print_encrypted_message_digest = ''.join(encrypted_message_digest)
-print('fungsi encrypt', print_encrypted_message_digest)
+print('fungsi encrypt', ''.join(encrypted_message_digest))
 
 set_sign(file_name, print_encrypted_message_digest)
 
